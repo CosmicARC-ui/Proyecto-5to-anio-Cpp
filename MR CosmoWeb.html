@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<link rel="icon" type="image/png" href="CosmoBoxLogo.png">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Monitor de Rendimiento PC</title>
+
+<style>
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: #0d1117;
+  color: #e6edf3;
+  overflow-x: hidden;
+  transition: background .3s, color .3s;
+}
+
+.sidebar img {
+  display: block;
+  width: 180px;
+  height: auto;
+  margin: 15px auto;
+  border-radius: 10px;
+  border: 1px solid #30363d;
+}
+
+header {
+  background: #161b22;
+  padding: 15px 30px;
+  border-bottom: 1px solid #30363d;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.menu-btn, button {
+  background: #21262d;
+  color: white;
+  border: 1px solid #30363d;
+  padding: 9px 13px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: .2s;
+}
+
+button:hover, .menu-btn:hover { background: #30363d; }
+
+.menu-btn { font-size: 20px; margin-right: 15px; }
+
+.logo-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: 0;
+    text-decoration: none;
+    color: inherit;
+}
+
+.logo-header h1 {
+  font-size: 20px;
+  margin: 0;
+}
+
+.logo-icon {
+    width: 45px;
+    height: 45px;
+    object-fit: contain;
+}
+
+.logo-header h1 {
+    font-size: 20px;
+    margin: 0;
+}
+
+.subtitulo-header {
+    margin-left: auto;
+    margin-right: auto;
+    color: #8b949e;
+}
+
+.container {
+  display: flex;
+  align-items: flex-start;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0d1117;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #30363d;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #484f58;
+}
+
+.sidebar {
+  width: 250px;
+  flex-shrink: 0;
+  background: #161b22;
+  padding: 20px;
+  border-right: 1px solid #30363d;
+  position: sticky;
+  top: 76px;
+  height: calc(100vh - 80px);
+  overflow-y: auto;
+  transition: all .3s ease;
+}
+
+.sidebar a {
+    color: #c9d1d9;
+    text-decoration: none;
+}
+
+.sidebar.oculta {
+  width: 0;
+  padding: 0;
+  overflow: hidden;
+  opacity: 0;
+  border: none;
+}
+
+.sidebar h3 {
+  font-size: 14px;
+  color: #8b949e;
+}
+
+.sidebar a {
+  display: block;
+  color: #c9d1d9;
+  text-decoration: none;
+  margin: 7px 0;
+  font-size: 14px;
+  padding: 7px 8px;
+  border-radius: 6px;
+  transition: .2s;
+}
+
+.sidebar a:hover {
+  background: #21262d;
+  color: #58a6ff;
+}
+
+.content {
+  padding: 30px;
+  flex: 1;
+  min-width: 0;
+}
+
+h2 {
+  border-bottom: 1px solid #30363d;
+  padding-bottom: 7px;
+   width: 1031px;
+  scroll-margin-top: 100px;
+  margin-top: 38px;
+}
+
+h3 { color: #58a6ff; }
+
+p, li {
+  line-height: 1.65;
+}
+
+.infobox {
+  float: right;
+  width: 280px;
+  background: #161b22;
+  border: 1px solid #30363d;
+  padding: 10px;
+  margin: 10px;
+  font-size: 14px;
+}
+
+.infobox h3 {
+  text-align: center;
+  margin-top: 0;
+  color: #e6edf3;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 15px;
+  margin: 20px 0;
+}
+
+.card {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 10px;
+  padding: 18px;
+}
+
+.card strong {
+  display: block;
+  font-size: 25px;
+  margin-top: 8px;
+}
+
+.metric {
+  color: #58a6ff;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+th, td {
+  padding: 10px;
+  border-bottom: 1px solid #30363d;
+  text-align: left;
+}
+
+th {
+  background: #21262d;
+}
+
+tr:hover { background: #1c2128; }
+
+.select-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 15px 0;
+}
+
+select {
+  background: #161b22;
+  color: #e6edf3;
+  border: 1px solid #30363d;
+  border-radius: 7px;
+  padding: 10px;
+}
+
+.dashboard {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.dashboard .card {
+  text-align: center;
+}
+
+.status {
+  margin-top: 15px;
+  color: #8b949e;
+}
+
+.barra-container {
+  width: 100%;
+  background: #30363d;
+  border-radius: 10px;
+  margin-top: 15px;
+  height: 20px;
+  overflow: hidden;
+}
+
+.barra {
+  width: 0%;
+  height: 100%;
+  background: #2ea043;
+  transition: width .25s;
+}
+
+.code-box {
+  background: #010409;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  padding: 15px;
+  overflow-x: auto;
+  color: #c9d1d9;
+  font-family: Consolas, monospace;
+  white-space: pre-wrap;
+}
+
+footer {
+  margin-top: 40px;
+  padding: 20px 0;
+  border-top: 1px solid #30363d;
+  color: #8b949e;
+}
+
+/* Modo claro */
+.light-mode {
+  background: #ffffff;
+  color: #111;
+}
+
+.light-mode header,
+.light-mode .sidebar,
+.light-mode .card,
+.light-mode .infobox,
+.light-mode table {
+  background: #f6f8fa;
+}
+
+.light-mode header,
+.light-mode .sidebar,
+.light-mode .card,
+.light-mode .infobox,
+.light-mode table,
+.light-mode th,
+.light-mode td {
+  border-color: #d0d7de;
+}
+
+.light-mode .sidebar a { color: #24292f; }
+.light-mode .sidebar a:hover { color: #0969da; background: #eaeef2; }
+.light-mode th { background: #eaeef2; }
+.light-mode tr:hover { background: #f0f2f4; }
+.light-mode button,
+.light-mode .menu-btn,
+.light-mode select {
+  background: #eaeef2;
+  color: #111;
+  border-color: #d0d7de;
+}
+.light-mode .code-box { background: #f6f8fa; color: #24292f; }
+.light-mode footer { color: #57606a; }
+.light-mode .subtitulo-header { color: #57606a; }
+
+@media (max-width: 768px) {
+  header { padding: 15px; }
+  .subtitulo-header { display: none; }
+  .logo-header { margin-left: 12px; }
+  .logo-header h1 { font-size: 17px; }
+
+  .container { display: block; }
+
+  .sidebar {
+    position: fixed;
+    left: 0;
+    top: 70px;
+    width: 260px;
+    height: calc(100dvh - 70px);
+    z-index: 2000;
+    transform: translateX(0);
+  }
+
+  .sidebar.oculta {
+    width: 260px;
+    padding: 20px;
+    opacity: 1;
+    border-right: 1px solid #30363d;
+    transform: translateX(-100%);
+  }
+
+  .content {
+    width: 100%;
+    padding: 18px;
+  }
+
+  .infobox {
+    float: none;
+    width: 100%;
+    margin: 20px 0;
+  }
+
+  table {
+    display: block;
+    overflow-x: auto;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header id="inicio">
+  <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+
+<a href="#" class="logo-header">
+	<img src="CosmoBoxLogo.png" alt="Logo CosmoBox" class="logo-icon">
+	
+	<h1>Cosmo Box Web</h1>
+</a>
+  
+  <div class="subtitulo-header">
+    Proyecto educativo · E.E.T. Nº2
+  </div>
+
+  <button onclick="cambiarTema()">🌙 / ☀️</button>
+</header>
+
+<div class="container">
+
+  <aside class="sidebar">
+    <h3>Contenido</h3>
+    <a href="#intro">Introducción</a>
+    <a href="#objetivo">Objetivo</a>
+    <a href="#hardware">Hardware simulado</a>
+    <a href="#funcionamiento">Funcionamiento</a>
+    <a href="#metricas">Métricas</a>
+    <a href="#juegos">Juegos</a>
+    <a href="#aplicaciones">Aplicaciones</a>
+    <a href="#simulador">Simulador web</a>
+    <a href="#algoritmos">Algoritmos utilizados</a>
+    <a href="#informe">Informe de sesión</a>
+
+    <hr style="margin:20px 0; border-color:#30363d;">
+
+    <p style="font-size:14px; color:#8b949e;">
+      Proyecto realizado por: -
+    </p>
+    
+    <img src="FedeP2.png" alt="Fede P.">
+    
+    <p style="font-size:14px; color:#8b949e;">
+      Fede P.
+      </p>
+      
+  </aside>
+
+  <main class="content">
+
+  <div class="infobox">
+    <h3>Datos del proyecto</h3>
+    <p><b>Proyecto:</b> Monitor de Rendimiento PC</p>
+    <p><b>Tecnologías:</b> C++ · HTML · CSS · JavaScript · Joel++</p>
+    <p><b>Tipo:</b> Simulación de monitor</p>
+    <p><b>Entorno:</b> Consola de Windows, Notepads</p>
+    <p><b>Juegos:</b> 7</p> <p><b>Aplicaciones:</b> 5</p>
+    <p><b>Versión: </b> 2.1</p>
+    <p><b>Institución:</b> -</p>
+    <p><b>Estado:</b> Finalizado ✓</p>
+    <p><b>Curso:</b> 5° 1°  T.C Ciclo Superior</p>
+    <p><b>Autor:</b> ✧ 𝕮𝖔𝖘𝖒𝖎𝖈 ✧ / ⟣ Carpincho ⟣</p>
+  </div>
+  
+    <h2 id="intro">Introducción</h2>
+    <p>
+      El proyecto consiste en desarrollar un <b>Monitor de Rendimiento de PC</b>
+      mediante una aplicación de consola programada en C++. El programa simula
+      el comportamiento de una computadora mientras ejecuta distintos juegos
+      y aplicaciones, mostrando diferentes valores de rendimiento del sistema.
+    </p>
+
+    <p>
+      La simulación trabaja con variables que representan el uso de CPU, GPU y
+      RAM, los FPS en juegos, temperaturas, consumo energético, velocidad de
+      ventiladores, almacenamiento y datos de conexión. Los valores cambian
+      durante la ejecución para representar un comportamiento dinámico.
+    </p>
+
+    <div class="card-grid">
+      <div class="card">⚙️ <b>CPU</b><strong class="metric">Uso</strong></div>
+      <div class="card">🎮 <b>GPU</b><strong class="metric">Uso</strong></div>
+      <div class="card">🧠 <b>RAM</b><strong class="metric">GB</strong></div>
+      <div class="card">📈 <b>FPS</b><strong class="metric">FPS</strong></div>
+    </div>
+
+    <h2 id="objetivo">Objetivo</h2>
+    <p>
+      El objetivo del proyecto es representar de manera sencilla cómo podría
+      funcionar un monitor de rendimiento mientras un equipo ejecuta diferentes
+      tipos de software. Para conseguirlo, el programa utiliza funciones,
+      variables, estructuras de control, generación de valores aleatorios,
+      menús y almacenamiento de información en un archivo de texto.
+    </p>
+
+    <p>
+      También diferencia entre <b>juegos</b> y <b>aplicaciones de edición</b>.
+      Los juegos incluyen FPS y datos de conexión, mientras que las
+      aplicaciones trabajan principalmente con el uso de componentes,
+      temperaturas, consumo y almacenamiento.
+    </p>
+
+    <h2 id="hardware">Hardware simulado</h2>
+    <p>
+      Según la presentación inicial del programa, la simulación está basada
+      en una máquina con las siguientes especificaciones:
+    </p>
+
+    <div class="card-grid">
+      <div class="card">
+        <b>Procesador</b>
+        <strong>Intel Core i5-14400F</strong>
+      </div>
+      <div class="card">
+        <b>Memoria RAM</b>
+        <strong>32 GB DDR5</strong>
+        <small>6000 MHz · CL30</small>
+      </div>
+      <div class="card">
+        <b>Tarjeta gráfica</b>
+        <strong>RTX 5060 Ti</strong>
+        <small>16 GB · ASUS Prime OC</small>
+      </div>
+    </div>
+
+    <h2 id="funcionamiento">Funcionamiento general</h2>
+    <p>
+      Al iniciar el programa se muestra una advertencia indicando que los
+      datos corresponden a una simulación. Luego se presenta la identificación
+      de la institución y el título del monitor. El usuario ingresa un nombre
+      y el programa simula el ingreso de una contraseña.
+    </p>
+
+    <p>
+      Después aparece el menú principal. Desde allí se puede acceder al menú
+      de juegos y aplicaciones. En cada opción se ejecuta una función específica
+      que recibe valores base y genera las mediciones durante la sesión.
+    </p>
+
+    <div class="code-box">Menu principal
+      ↓
+Juegos / Aplicaciones
+      ↓
+Selección del programa
+      ↓
+Carga de valores base
+      ↓
+Generación de mediciones
+      ↓
+Actualización del monitor
+      ↓
+Cálculo de promedios
+      ↓
+Informe de sesión</div>
+
+    <h2 id="metricas">Métricas que registra</h2>
+
+    <div class="card-grid">
+      <div class="card"><b>Uso</b><p>CPU · GPU · RAM · FPS</p></div>
+      <div class="card"><b>Temperaturas</b><p>CPU · GPU · SSD</p></div>
+      <div class="card"><b>Consumo</b><p>CPU · GPU · Total</p></div>
+      <div class="card"><b>Ventiladores</b><p>CPU FAN · GPU FANS</p></div>
+      <div class="card"><b>Almacenamiento</b><p>SSD C · SSD Juegos</p></div>
+      <div class="card"><b>Transferencia</b><p>Lectura · Escritura</p></div>
+      <div class="card"><b>Conexión</b><p>Ping · Pérdida · Mbps</p></div>
+      <div class="card"><b>Sesión</b><p>Tiempo de ejecución</p></div>
+    </div>
+
+    <h2 id="juegos">Juegos disponibles</h2>
+    <p>
+      El programa contempla siete juegos. Cada uno recibe valores base
+      diferentes para CPU, GPU, RAM, FPS, temperaturas, consumo, almacenamiento
+      y conexión.
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Juego</th>
+          <th>CPU base</th>
+          <th>GPU base</th>
+          <th>RAM base</th>
+          <th>FPS base</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Forza Horizon 6</td><td>45%</td><td>75%</td><td>12 GB</td><td>146</td></tr>
+        <tr><td>GTA VI</td><td>65%</td><td>95%</td><td>16 GB</td><td>98</td></tr>
+        <tr><td>Ananta</td><td>55%</td><td>82%</td><td>12 GB</td><td>153</td></tr>
+        <tr><td>Neverness To Everness</td><td>60%</td><td>85%</td><td>13 GB</td><td>186</td></tr>
+        <tr><td>Warzone</td><td>75%</td><td>92%</td><td>15 GB</td><td>167</td></tr>
+        <tr><td>Arknights Endfield</td><td>50%</td><td>70%</td><td>10 GB</td><td>189</td></tr>
+        <tr><td>Metro Exodus Enhanced Edition</td><td>58%</td><td>88%</td><td>11 GB</td><td>157</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="aplicaciones">Aplicaciones disponibles</h2>
+    <p>
+      Para las aplicaciones de edición no se utiliza FPS. En su lugar, el
+      programa muestra el uso de CPU, GPU y RAM, junto con temperaturas,
+      consumo energético, ventiladores y almacenamiento.
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Aplicación</th>
+          <th>CPU base</th>
+          <th>GPU base</th>
+          <th>RAM base</th>
+          <th>Temp. GPU</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Brave</td><td>20%</td><td>15%</td><td>2 GB</td><td>45 °C</td></tr>
+        <tr><td>Photoshop</td><td>45%</td><td>40%</td><td>5 GB</td><td>55 °C</td></tr>
+        <tr><td>Premiere Pro</td><td>70%</td><td>76%</td><td>6 GB</td><td>68 °C</td></tr>
+        <tr><td>After Effects</td><td>90%</td><td>58%</td><td>8 GB</td><td>70 °C</td></tr>
+        <tr><td>Blender</td><td>99%</td><td>78%</td><td>13 GB</td><td>82 °C</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="simulador">Simulador web</h2>
+    <p>
+      Esta sección reproduce de forma visual la idea principal del programa:
+      seleccionar un juego o aplicación y observar valores que varían alrededor
+      de sus valores base.
+    </p>
+
+    <div class="select-row">
+      <select id="tipo">
+        <option value="game">Juego</option>
+        <option value="app">Aplicación</option>
+      </select>
+
+      <select id="programa"></select>
+
+      <button onclick="iniciarSimulacion()">▶ Iniciar simulación</button>
+      <button onclick="detenerSimulacion()">■ Detener</button>
+    </div>
+
+    <div id="estado" class="status">Seleccioná un programa para comenzar.</div>
+
+    <div class="dashboard">
+      <div class="card">CPU<strong id="cpu">-- %</strong></div>
+      <div class="card">GPU<strong id="gpu">-- %</strong></div>
+      <div class="card">RAM<strong id="ram">-- GB</strong></div>
+      <div class="card" id="fpsCard">FPS<strong id="fps">--</strong></div>
+      <div class="card">Temp. CPU<strong id="tcpu">-- °C</strong></div>
+      <div class="card">Temp. GPU<strong id="tgpu">-- °C</strong></div>
+    </div>
+
+    <div id="barraContainer" class="barra-container">
+      <div id="barra" class="barra"></div>
+    </div>
+
+    <h2 id="algoritmos">Algoritmos utilizados</h2>
+    <p>
+      El proyecto utiliza valores base y pequeñas variaciones aleatorias para
+      evitar que las mediciones sean siempre idénticas. Por ejemplo, los FPS
+      se calculan a partir de un valor base más una variación aleatoria.
+    </p>
+
+    <div class="code-box">FPSactual = FPSBaseJuego + (rand()%41 - 10);
+
+gpuActual = gpuBaseJuego + (rand()%21 - 10) / 10.0;
+
+cpuActual = cpuBaseJuego + (rand()%21 - 10) / 10.0;
+
+ramActual = ramBaseJuego + (rand()%11 - 5) / 10.0;</div>
+
+    <h3>Cálculo de ventiladores</h3>
+    <p>
+      Las RPM del ventilador de CPU y GPU se calculan según la temperatura.
+      A medida que aumenta la temperatura, también aumenta el rango de RPM
+      utilizado por la simulación.
+    </p>
+
+    <h3>Promedios</h3>
+    <p>
+      Durante una sesión se acumulan las mediciones de CPU, GPU, RAM, FPS,
+      temperaturas y consumo. Al finalizar, el programa divide los valores
+      acumulados por la cantidad de mediciones para obtener promedios.
+    </p>
+
+    <h2 id="informe">Informe de sesión</h2>
+    <p>
+      Al finalizar el monitor, el programa crea un archivo llamado
+      <b>“Informe de la Sesion.txt”</b>. Allí guarda los datos principales
+      obtenidos durante la ejecución.
+    </p>
+
+    <div class="card-grid">
+      <div class="card"><b>Identificación</b><p>Usuario y lenguaje.</p></div>
+      <div class="card"><b>Programa</b><p>Juego y FPS final.</p></div>
+      <div class="card"><b>Rendimiento</b><p>CPU, GPU, RAM y FPS promedio.</p></div>
+      <div class="card"><b>Temperaturas</b><p>CPU y GPU promedio.</p></div>
+      <div class="card"><b>Consumo</b><p>CPU, GPU y consumo total.</p></div>
+      <div class="card"><b>Estado final</b><p>Sistema estable.</p></div>
+    </div>
+
+    <h2>Conclusión</h2>
+    <p>
+      El Monitor de Rendimiento PC reúne diferentes conceptos de programación
+      para construir una simulación interactiva. El proyecto utiliza funciones
+      separadas para juegos y aplicaciones, menús, variables acumuladoras,
+      generación aleatoria, temporizadores, entrada de teclado y escritura
+      de archivos.
+    </p>
+
+    <p>
+      De esta manera, la aplicación representa de forma sencilla cómo un
+      monitor podría mostrar información del equipo mientras se ejecuta
+      determinado software.
+    </p>
+
+    <footer>
+      © 2026 Monitor de Rendimiento PC · Proyecto educativo ·
+    </footer>
+
+  </main>
+</div>
+
+<script>
+const juegos = [
+  {n:"Forza Horizon 6", cpu:45, gpu:75, ram:12, fps:146, tcpu:68, tgpu:55},
+  {n:"GTA VI", cpu:65, gpu:95, ram:16, fps:98, tcpu:70, tgpu:68},
+  {n:"Ananta", cpu:55, gpu:82, ram:12, fps:153, tcpu:64, tgpu:64},
+  {n:"Neverness To Everness", cpu:60, gpu:85, ram:13, fps:186, tcpu:66, tgpu:60},
+  {n:"Warzone", cpu:75, gpu:92, ram:15, fps:167, tcpu:72, tgpu:66},
+  {n:"Arknights Endfield", cpu:50, gpu:70, ram:10, fps:189, tcpu:60, tgpu:55},
+  {n:"Metro Exodus Enhanced Edition", cpu:58, gpu:88, ram:11, fps:157, tcpu:65, tgpu:64}
+];
+
+const apps = [
+  {n:"Brave", cpu:20, gpu:15, ram:2, fps:null, tcpu:30, tgpu:45},
+  {n:"Photoshop", cpu:45, gpu:40, ram:5, fps:null, tcpu:58, tgpu:55},
+  {n:"Premiere Pro", cpu:70, gpu:76, ram:6, fps:null, tcpu:66, tgpu:68},
+  {n:"After Effects", cpu:90, gpu:58, ram:8, fps:null, tcpu:78, tgpu:66},
+  {n:"Blender", cpu:92, gpu:78, ram:13, fps:null, tcpu:97, tgpu:71}
+];
+
+let intervalo = null;
+
+function actualizarProgramas() {
+  const tipo = document.getElementById("tipo").value;
+  const select = document.getElementById("programa");
+  const lista = tipo === "game" ? juegos : apps;
+
+  select.innerHTML = "";
+  lista.forEach((item, i) => {
+    const option = document.createElement("option");
+    option.value = i;
+    option.textContent = item.n;
+    select.appendChild(option);
+  });
+
+  document.getElementById("fpsCard").style.display =
+    tipo === "game" ? "block" : "none";
+}
+
+document.getElementById("tipo").addEventListener("change", actualizarProgramas);
+
+function variar(base, cantidad) {
+  return base + (Math.random() * cantidad * 2 - cantidad);
+}
+
+function iniciarSimulacion() {
+  detenerSimulacion();
+
+  const tipo = document.getElementById("tipo").value;
+  const lista = tipo === "game" ? juegos : apps;
+  const item = lista[document.getElementById("programa").value];
+
+  document.getElementById("estado").textContent =
+    "Simulando: " + item.n;
+
+  let progreso = 0;
+
+  intervalo = setInterval(() => {
+    const cpu = variar(item.cpu, 5);
+    const gpu = variar(item.gpu, 5);
+    const ram = variar(item.ram, 0.5);
+    const tcpu = variar(item.tcpu, 2);
+    const tgpu = variar(item.tgpu, 2);
+
+    document.getElementById("cpu").textContent = cpu.toFixed(1) + " %";
+    document.getElementById("gpu").textContent = gpu.toFixed(1) + " %";
+    document.getElementById("ram").textContent = ram.toFixed(1) + " GB";
+    document.getElementById("tcpu").textContent = tcpu.toFixed(1) + " °C";
+    document.getElementById("tgpu").textContent = tgpu.toFixed(1) + " °C";
+
+    if (item.fps !== null) {
+      const fps = Math.round(variar(item.fps, 10));
+      document.getElementById("fps").textContent = fps + " FPS";
+    }
+
+    progreso = (progreso + 5) % 101;
+    document.getElementById("barra").style.width = progreso + "%";
+  }, 800);
+}
+
+function detenerSimulacion() {
+  if (intervalo) clearInterval(intervalo);
+  intervalo = null;
+  document.getElementById("estado").textContent =
+    "Simulación detenida.";
+}
+
+function cambiarTema() {
+  document.body.classList.toggle("light-mode");
+}
+
+function toggleSidebar() {
+  document.querySelector(".sidebar").classList.toggle("oculta");
+}
+
+actualizarProgramas();
+</script>
+
+</body>
+</html>
